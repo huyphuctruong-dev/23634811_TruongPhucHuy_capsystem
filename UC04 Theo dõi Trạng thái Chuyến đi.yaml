@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - UC04: Theo dõi trạng thái chuyến đi"
+  version: 1.0.0
+  description: Khách hàng kiểm tra trạng thái chuyến đi, vị trí tài xế và ETA.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+tags:
+  - name: TripTracking
+    description: Theo dõi hành trình chuyến đi
+paths:
+  /rides/{ride_id}/status:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Lấy chi tiết trạng thái chuyến đi
+      tags:
+        - TripTracking
+      parameters:
+        - name: ride_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ride_100928
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/RideStatusDetails'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RideStatusDetails:
+      type: object
+      properties:
+        ride_id:
+          type: string
+          example: ride_100928
+        status:
+          type: string
+          enum: [SEARCHING_DRIVER, DRIVER_ACCEPTED, DRIVER_ARRIVED, IN_PROGRESS, COMPLETED, CANCELLED]
+          example: DRIVER_ACCEPTED
+        driver_info:
+          type: object
+          properties:
+            driver_id:
+              type: string
+              example: drv_88
+            full_name:
+              type: string
+              example: Tran Van B
+            phone:
+              type: string
+              example: "0912345678"
+            vehicle_plate:
+              type: string
+              example: 51H-123.45
+            rating:
+              type: number
+              example: 4.8
+        driver_location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 10.777000
+            longitude:
+              type: number
+              example: 106.701000
+        eta_minutes:
+          type: integer
+          example: 4

@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - UC03: Tạo yêu cầu đặt xe"
+  version: 1.0.0
+  description: Khách hàng nhập thông tin hành trình và gửi yêu cầu đặt xe.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+tags:
+  - name: Booking
+    description: Đặt xe và quản lý yêu cầu
+paths:
+  /rides/book:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Tạo yêu cầu đặt xe mới
+      tags:
+        - Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRideRequest'
+      responses:
+        '201':
+          description: Đặt xe thành công, đang tìm tài xế
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/RideResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Location:
+      type: object
+      required: [address, latitude, longitude]
+      properties:
+        address:
+          type: string
+          example: 123 Nguyen Hue, Quan 1, TP.HCM
+        latitude:
+          type: number
+          format: double
+          example: 10.776889
+        longitude:
+          type: number
+          format: double
+          example: 106.700806
+    CreateRideRequest:
+      type: object
+      required: [pickup_location, dropoff_location, service_type, payment_method]
+      properties:
+        pickup_location:
+          $ref: '#/components/schemas/Location'
+        dropoff_location:
+          $ref: '#/components/schemas/Location'
+        service_type:
+          type: string
+          enum: [BIKE, CAR_4_SEAT, CAR_7_SEAT, PREMIUM]
+          example: CAR_4_SEAT
+        payment_method:
+          type: string
+          enum: [CASH, ELECTRONIC_PAYMENT]
+          example: ELECTRONIC_PAYMENT
+        note_for_driver:
+          type: string
+          example: Đón tôi trước cổng A
+    RideResponse:
+      type: object
+      properties:
+        ride_id:
+          type: string
+          example: ride_100928
+        status:
+          type: string
+          example: SEARCHING_DRIVER
+        estimated_distance_km:
+          type: number
+          example: 5.2
+        estimated_fare:
+          type: number
+          example: 65000
+        currency:
+          type: string
+          example: VND
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-09-14T20:00:00Z"
