@@ -1,0 +1,210 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Xử lý Thanh toán (UC15)"
+  version: 1.0.0
+  description: API khởi tạo thanh toán không dùng tiền mặt qua cổng thanh toán trung gian (MoMo, ZaloPay, VNPay).
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Payment Engine
+    description: Quản lý giao dịch, khởi tạo và xử lý thanh toán
+
+paths:
+  /payments/initiate:
+    post:
+      summary: Khởi tạo thanh toán điện tử
+      operationId: initiatePayment
+      tags:
+        - Payment Engine
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Khởi tạo giao dịch thanh toán thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/PaymentInitiateResult'
+        '400':
+          description: Dữ liệu yêu cầu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi tương ứng.
+        '409':
+          description: Chuyến đi đã thanh toán hoặc đã hủy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AlreadyPaid:
+                  summary: Chuyến đi đã được thanh toán
+                  value:
+                    success: false
+                    error:
+                      code: PAYMENT_ALREADY_COMPLETED
+                      message: Chuyến đi này đã hoàn tất thanh toán trước đó.
+                TripCancelled:
+                  summary: Chuyến đi đã bị hủy
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_CANCELLED
+                      message: Không thể thanh toán cho chuyến đi đã bị hủy.
+        '502':
+          description: Lỗi kết nối tới cổng thanh toán đối tác
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: PAYMENT_GATEWAY_ERROR
+                  message: Không thể kết nối tới cổng thanh toán. Vui lòng thử lại sau.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    PaymentRequest:
+      type: object
+      required:
+        - trip_id
+        - amount
+        - provider
+      properties:
+        trip_id:
+          type: string
+          example: trip_12345
+        amount:
+          type: number
+          minimum: 1000
+          description: Số tiền cần thanh toán (VND)
+          example: 85000
+        provider:
+          type: string
+          enum: [MOMO, ZALOPAY, VNPAY]
+          example: MOMO
+        return_url:
+          type: string
+          description: URL chuyển hướng sau khi hoàn tất thanh toán trên App/Web
+          example: "https://cabapp.com/payment-result"
+
+    PaymentInitiateResult:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          example: txn_987654321
+        trip_id:
+          type: string
+          example: trip_12345
+        provider:
+          type: string
+          enum: [MOMO, ZALOPAY, VNPAY]
+          example: MOMO
+        amount:
+          type: number
+          example: 85000
+        currency:
+          type: string
+          example: VND
+        payment_url:
+          type: string
+          description: Đường dẫn chuyển hướng để người dùng thực hiện thanh toán
+          example: "https://payment-gateway.com/pay"
+        qr_code_url:
+          type: string
+          nullable: true
+          description: Đường dẫn ảnh mã QR thanh toán (nếu hỗ trợ)
+          example: "https://payment-gateway.com/qr/txn_987654321.png"
+        expires_at:
+          type: string
+          format: date-time
+          description: Thời gian hết hạn của liên kết/mã QR thanh toán
+          example: "2026-09-18T13:54:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: PAYMENT_ALREADY_COMPLETED
+            message:
+              type: string
+              example: Chuyến đi này đã hoàn tất thanh toán trước đó.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: amount
+                  message:
+                    type: string
+                    example: Số tiền thanh toán phải lớn hơn hoặc bằng 1,000 VND.

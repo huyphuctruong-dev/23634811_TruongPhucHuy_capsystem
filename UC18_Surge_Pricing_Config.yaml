@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Cấu hình Hệ số giá (UC18)"
+  version: 1.0.0
+  description: API dành cho Admin để thiết lập và điều chỉnh hệ số nhân giá (Surge Pricing) theo khu vực và thời gian cao điểm/thời tiết xấu.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Admin & System Settings
+    description: Quản trị hệ thống, cấu hình tham số và thiết lập giá
+
+paths:
+  /admin/surge-pricing:
+    post:
+      summary: Admin cập nhật hệ số nhân giá giờ cao điểm
+      operationId: updateSurgePricing
+      tags:
+        - Admin & System Settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SurgeConfigRequest'
+      responses:
+        '200':
+          description: Áp dụng hệ số giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SurgeConfigResult'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ (hệ số giá ngoài dải cho phép, thiếu trường...)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền truy cập (Chỉ tài khoản ADMIN mới có quyền)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không có quyền thực hiện chức năng quản trị này.
+        '404':
+          description: Không tìm thấy khu vực (zone_id không tồn tại)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ZONE_NOT_FOUND
+                  message: Mã khu vực (zone_id) không tồn tại trong hệ thống.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SurgeConfigRequest:
+      type: object
+      required:
+        - zone_id
+        - multiplier
+      properties:
+        zone_id:
+          type: string
+          description: Mã định danh khu vực áp dụng hệ số giá
+          example: zone_q1_hcm
+        multiplier:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 5.0
+          description: Hệ số nhân giá (tối thiểu 1.0, tối đa 5.0)
+          example: 1.5
+        reason:
+          type: string
+          description: Lý do điều chỉnh (giờ cao điểm, mưa lớn, thiếu tài xế,...)
+          example: "Mưa lớn giờ tan tầm"
+        expires_in_minutes:
+          type: integer
+          description: Thời gian hiệu lực của hệ số giá (tính theo phút), mặc định 60 phút
+          example: 60
+
+    SurgeConfigResult:
+      type: object
+      properties:
+        config_id:
+          type: string
+          example: surge_cfg_889900
+        zone_id:
+          type: string
+          example: zone_q1_hcm
+        multiplier:
+          type: number
+          format: float
+          example: 1.5
+        reason:
+          type: string
+          example: "Mưa lớn giờ tan tầm"
+        is_active:
+          type: boolean
+          example: true
+        created_by:
+          type: string
+          example: admin_001
+        applied_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:43:04Z"
+        expires_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T14:43:04Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: ZONE_NOT_FOUND
+            message:
+              type: string
+              example: Mã khu vực (zone_id) không tồn tại trong hệ thống.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: multiplier
+                  message:
+                    type: string
+                    example: Hệ số nhân giá (multiplier) phải nằm trong khoảng từ 1.0 đến 5.0.

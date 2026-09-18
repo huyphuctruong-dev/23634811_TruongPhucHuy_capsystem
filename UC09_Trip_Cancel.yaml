@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Hủy chuyến xe (UC09)"
+  version: 1.0.0
+  description: API cho phép Khách hàng hoặc Tài xế thực hiện hủy chuyến xe đang ở trạng thái hợp lệ.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Trip Operations
+    description: Các thao tác liên quan đến trạng thái chuyến đi
+
+paths:
+  /trips/{trip_id}/cancel:
+    post:
+      summary: Hủy chuyến xe hiện tại
+      operationId: cancelTrip
+      tags:
+        - Trip Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: ID của chuyến đi cần hủy
+          schema:
+            type: string
+          example: trip_12345
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelTripRequest'
+      responses:
+        '200':
+          description: Hủy chuyến thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/CancelTripResult'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền hủy chuyến đi này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không phải người tạo hoặc tài xế phụ trách chuyến đi này.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi với ID tương ứng.
+        '409':
+          description: Không thể hủy chuyến đi do trạng thái hiện tại không cho phép
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AlreadyInTrip:
+                  summary: Chuyến đi đang diễn ra
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_IN_PROGRESS
+                      message: Chuyến đi đã bắt đầu, không thể thực hiện hủy chuyến.
+                AlreadyCompleted:
+                  summary: Chuyến đi đã hoàn thành hoặc đã bị hủy
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_TRIP_STATUS
+                      message: Chuyến đi đã kết thúc hoặc đã hủy trước đó.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CancelTripRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          example: "Thay đổi kế hoạch di chuyển"
+        reason_code:
+          type: string
+          enum: [CHANGE_PLAN, WAITED_TOO_LONG, DRIVER_NOT_MOVING, OTHER]
+          example: CHANGE_PLAN
+
+    CancelTripResult:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          example: trip_12345
+        status:
+          type: string
+          enum: [CANCELLED]
+          example: CANCELLED
+        cancelled_by:
+          type: string
+          enum: [CUSTOMER, DRIVER, SYSTEM]
+          example: CUSTOMER
+        cancellation_fee:
+          type: number
+          description: Phí hủy chuyến (nếu áp dụng)
+          example: 0
+        currency:
+          type: string
+          example: VND
+        cancelled_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:32:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: TRIP_IN_PROGRESS
+            message:
+              type: string
+              example: Chuyến đi đã bắt đầu, không thể thực hiện hủy chuyến.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: reason
+                  message:
+                    type: string
+                    example: Lý do hủy không được để trống.

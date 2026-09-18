@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Ước tính cước phí (UC05)"
+  version: 1.0.0
+  description: API tính toán khoảng cách, thời gian di chuyển dự kiến và cước phí cho các loại xe.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Trip Booking
+    description: Quản lý đặt chuyến và tính cước phí
+
+paths:
+  /trips/estimate:
+    post:
+      summary: Ước tính giá cước và thời gian di chuyển
+      operationId: estimateTripFare
+      tags:
+        - Trip Booking
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+      responses:
+        '200':
+          description: Ước tính cước phí thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/EstimateResponse'
+        '400':
+          description: Dữ liệu tọa độ không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '422':
+          description: Không thể tìm thấy tuyến đường giữa hai điểm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ROUTE_NOT_FOUND
+                  message: Không thể tính toán tuyến đường giữa điểm đón và điểm trả.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    EstimateRequest:
+      type: object
+      required:
+        - pickup_lat
+        - pickup_lng
+        - dropoff_lat
+        - dropoff_lng
+      properties:
+        pickup_lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 10.762622
+        pickup_lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 106.682220
+        dropoff_lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 10.776889
+        dropoff_lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 106.700806
+        promo_code:
+          type: string
+          example: "SUMMER2026"
+
+    EstimateResponse:
+      type: object
+      properties:
+        distance_km:
+          type: number
+          format: float
+          example: 4.5
+        estimated_time_mins:
+          type: integer
+          example: 15
+        currency:
+          type: string
+          example: VND
+        fares:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleFare'
+
+    VehicleFare:
+      type: object
+      properties:
+        vehicle_type:
+          type: string
+          enum: [CAR_4_SEAT, CAR_7_SEAT, CAB_BIKE]
+          example: CAR_4_SEAT
+        base_fare:
+          type: number
+          example: 65000
+        discount_amount:
+          type: number
+          example: 10000
+        final_fare:
+          type: number
+          example: 55000
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: ROUTE_NOT_FOUND
+            message:
+              type: string
+              example: Không thể tính toán tuyến đường.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: pickup_lat
+                  message:
+                    type: string
+                    example: Vĩ độ (latitude) phải nằm trong khoảng từ -90 đến 90.

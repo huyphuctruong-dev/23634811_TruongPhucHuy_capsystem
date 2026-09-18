@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Chuyển trạng thái Online/Offline (UC11)"
+  version: 1.0.0
+  description: API cho phép tài xế thay đổi trạng thái hoạt động (bật/tắt nhận cuốc xe) trên hệ thống.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Driver Operations
+    description: Các thao tác vận hành dành cho tài xế
+
+paths:
+  /driver/status:
+    patch:
+      summary: Tài xế bật/tắt nhận cuốc
+      operationId: toggleDriverStatus
+      tags:
+        - Driver Operations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusToggleRequest'
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/DriverStatusResult'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền thực hiện (Tài khoản không phải DRIVER)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Chỉ tài khoản Tài xế mới có thể cập nhật trạng thái nhận cuốc.
+        '409':
+          description: Không thể tắt nhận cuốc do đang trong chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ACTIVE_TRIP_IN_PROGRESS
+                  message: Bạn đang có chuyến đi chưa hoàn thành. Không thể chuyển sang trạng thái Offline.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StatusToggleRequest:
+      type: object
+      required:
+        - is_online
+      properties:
+        is_online:
+          type: boolean
+          description: Trạng thái mong muốn (true = Online/Sẵn sàng nhận cuốc, false = Offline)
+          example: true
+
+    DriverStatusResult:
+      type: object
+      properties:
+        driver_id:
+          type: string
+          example: drv_009
+        is_online:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE, BUSY]
+          example: ONLINE
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:35:21Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: ACTIVE_TRIP_IN_PROGRESS
+            message:
+              type: string
+              example: Bạn đang có chuyến đi chưa hoàn thành. Không thể chuyển sang trạng thái Offline.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: is_online
+                  message:
+                    type: string
+                    example: Trường is_online là bắt buộc và phải có giá trị kiểu boolean.

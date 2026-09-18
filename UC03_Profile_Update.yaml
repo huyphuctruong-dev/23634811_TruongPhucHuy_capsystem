@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Cập nhật thông tin cá nhân (UC03)"
+  version: 1.0.0
+  description: API cập nhật thông tin hồ sơ người dùng.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Profile
+    description: Quản lý thông tin cá nhân
+
+paths:
+  /users/profile:
+    put:
+      summary: Cập nhật thông tin cá nhân
+      operationId: updateProfile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UpdateProfileRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Nguyen Van B
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 500
+          example: "https://example.com/avatar.jpg"
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          example: usr_001
+        role:
+          type: string
+          enum: [CUSTOMER, DRIVER]
+          example: CUSTOMER
+        full_name:
+          type: string
+          example: Nguyen Van B
+        phone:
+          type: string
+          example: "0901234567"
+        email:
+          type: string
+          example: a@example.com
+        avatar_url:
+          type: string
+          example: "https://example.com/avatar.jpg"
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, PENDING_VERIFICATION]
+          example: ACTIVE
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: UNAUTHORIZED
+            message:
+              type: string
+              example: Token không hợp lệ hoặc đã hết hạn.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: avatar_url
+                  message:
+                    type: string
+                    example: Định dạng URL hình ảnh không hợp lệ.

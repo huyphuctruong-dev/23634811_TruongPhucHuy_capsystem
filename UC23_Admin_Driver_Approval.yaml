@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Duyệt Hồ sơ Tài xế (UC23)"
+  version: 1.0.0
+  description: API dành cho Admin để phê duyệt hoặc từ chối hồ sơ đăng ký tài xế mới.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Admin Operations
+    description: Các thao tác quản trị và vận hành hệ thống
+
+paths:
+  /admin/drivers/{driver_id}/approve:
+    patch:
+      summary: Admin phê duyệt hoặc từ chối tài xế
+      operationId: approveDriver
+      tags:
+        - Admin Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: driver_id
+          in: path
+          required: true
+          description: Mã định danh của tài xế cần duyệt hồ sơ
+          schema:
+            type: string
+          example: drv_009
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Cập nhật trạng thái duyệt hồ sơ tài xế thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ApprovalResult'
+        '400':
+          description: "Dữ liệu không hợp lệ (ví dụ: Từ chối nhưng thiếu lý do rejection_reason)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền thực hiện (Chỉ Admin mới có quyền)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không có quyền truy cập chức năng phê duyệt hồ sơ tài xế.
+        '404':
+          description: Không tìm thấy hồ sơ tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: DRIVER_NOT_FOUND
+                  message: Không tìm thấy tài xế với ID tương ứng.
+        '409':
+          description: Xung đột trạng thái (Hồ sơ đã được duyệt hoặc từ chối trước đó)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ALREADY_PROCESSED
+                  message: Hồ sơ tài xế này đã được xử lý trước đó.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ApprovalRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, REJECTED]
+          description: Trạng thái phê duyệt (APPROVED - Chấp nhận, REJECTED - Từ chối)
+          example: APPROVED
+        rejection_reason:
+          type: string
+          description: Lý do từ chối (bắt buộc khi status = REJECTED)
+          example: "Bằng lái xe hết hạn"
+
+    ApprovalResult:
+      type: object
+      properties:
+        driver_id:
+          type: string
+          example: drv_009
+        status:
+          type: string
+          enum: [APPROVED, REJECTED]
+          example: APPROVED
+        rejection_reason:
+          type: string
+          nullable: true
+          example: null
+        approved_by:
+          type: string
+          example: admin_001
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:49:50Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: DRIVER_NOT_FOUND
+            message:
+              type: string
+              example: Không tìm thấy tài xế với ID tương ứng.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: rejection_reason
+                  message:
+                    type: string
+                    example: Vui lòng nhập lý do từ chối khi status là REJECTED.

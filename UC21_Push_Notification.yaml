@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Gửi Thông báo Push (UC21)"
+  version: 1.0.0
+  description: API cho phép hệ thống (Internal Services) gửi thông báo đẩy (Push Notification) tới ứng dụng di động của người dùng hoặc tài xế thông qua Firebase Cloud Messaging (FCM).
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Notifications
+    description: Quản lý và xử lý gửi thông báo (Push Notification, SMS, Email)
+
+paths:
+  /notifications/push:
+    post:
+      summary: Bắn notification qua Firebase/Push Gateway
+      operationId: sendPushNotification
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+      responses:
+        '200':
+          description: Đã đẩy tin nhắn vào hàng chờ gửi (Message Queue/FCM)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/NotificationResult'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc API Token không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token dịch vụ không hợp lệ hoặc đã hết hạn.
+        '404':
+          description: Không tìm thấy người dùng hoặc FCM Token của thiết bị
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: USER_NOT_FOUND
+                  message: Không tìm thấy người dùng hoặc FCM Token tương ứng.
+        '502':
+          description: Lỗi kết nối tới nhà cung cấp dịch vụ Push (Firebase FCM Gateway Error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: PUSH_GATEWAY_ERROR
+                  message: Không thể kết nối tới dịch vụ Push Notification của Firebase.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    NotificationRequest:
+      type: object
+      required:
+        - target_user_id
+        - title
+        - body
+      properties:
+        target_user_id:
+          type: string
+          description: Mã ID của người nhận (Khách hàng hoặc Tài xế)
+          example: usr_001
+        title:
+          type: string
+          maxLength: 100
+          description: Tiêu đề của thông báo
+          example: "Tài xế đang đến"
+        body:
+          type: string
+          maxLength: 500
+          description: Nội dung chi tiết của thông báo
+          example: "Tài xế Nguyễn Văn B sẽ tới điểm đón trong 3 phút."
+        notification_type:
+          type: string
+          enum: [TRIP_UPDATE, PROMOTION, SYSTEM_ALERT, PAYMENT_SUCCESS]
+          default: TRIP_UPDATE
+          description: Phân loại thông báo để định tuyến điều hướng dưới ứng dụng
+          example: TRIP_UPDATE
+        data:
+          type: object
+          description: Dữ liệu đính kèm (Payload Custom Data) phục vụ điều hướng màn hình trên App
+          properties:
+            trip_id:
+              type: string
+              example: trip_12345
+            screen:
+              type: string
+              example: "TRIP_DETAIL"
+          example:
+            trip_id: "trip_12345"
+            screen: "TRIP_DETAIL"
+
+    NotificationResult:
+      type: object
+      properties:
+        message_id:
+          type: string
+          description: Mã định danh của tin nhắn trong hệ thống hàng chờ/Firebase
+          example: msg_fcm_99887766
+        target_user_id:
+          type: string
+          example: usr_001
+        status:
+          type: string
+          enum: [QUEUED, SENT, FAILED]
+          example: QUEUED
+        queued_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:47:13Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: USER_NOT_FOUND
+            message:
+              type: string
+              example: Không tìm thấy người dùng hoặc FCM Token tương ứng.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: title
+                  message:
+                    type: string
+                    example: 'Tiêu đề thông báo (title) không được để trống.'

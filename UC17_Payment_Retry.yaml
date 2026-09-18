@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Đổi phương thức thanh toán (UC17)"
+  version: 1.0.0
+  description: API cho phép hành khách chuyển đổi sang phương thức thanh toán mới (tiền mặt hoặc ví điện tử khác) khi gặp lỗi thanh toán hoặc muốn đổi hình thức trả tiền.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Payment Engine
+    description: Quản lý giao dịch, khởi tạo và xử lý thanh toán
+
+paths:
+  /payments/{trip_id}/retry:
+    post:
+      summary: Thử lại hoặc chuyển sang thanh toán tiền mặt khi lỗi
+      operationId: retryOrSwitchPaymentMethod
+      tags:
+        - Payment Engine
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: ID của chuyến đi cần chuyển đổi phương thức thanh toán
+          schema:
+            type: string
+          example: trip_12345
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetryPaymentRequest'
+      responses:
+        '200':
+          description: Đã chuyển đổi phương thức thanh toán thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/RetryPaymentResult'
+        '400':
+          description: Dữ liệu yêu cầu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi tương ứng.
+        '409':
+          description: Chuyến đi đã thanh toán thành công trước đó
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: PAYMENT_ALREADY_COMPLETED
+                  message: Chuyến đi đã thanh toán thành công, không thể chuyển đổi phương thức.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RetryPaymentRequest:
+      type: object
+      required:
+        - new_payment_method
+      properties:
+        new_payment_method:
+          type: string
+          enum: [CASH, E_WALLET]
+          description: Phương thức thanh toán mới được chọn
+          example: CASH
+        provider:
+          type: string
+          enum: [MOMO, ZALOPAY, VNPAY]
+          nullable: true
+          description: Nhà cung cấp ví điện tử mới (bắt buộc nếu new_payment_method = E_WALLET)
+          example: ZALOPAY
+
+    RetryPaymentResult:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          example: trip_12345
+        status:
+          type: string
+          enum: [SWITCHED_TO_CASH, PAYMENT_REINITIATED]
+          example: SWITCHED_TO_CASH
+        new_payment_method:
+          type: string
+          enum: [CASH, E_WALLET]
+          example: CASH
+        payment_url:
+          type: string
+          nullable: true
+          description: Đường dẫn thanh toán mới (chỉ có khi new_payment_method = E_WALLET)
+          example: "https://payment-gateway.com/pay/retry_123"
+        amount:
+          type: number
+          example: 85000
+        currency:
+          type: string
+          example: VND
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:41:50Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: PAYMENT_ALREADY_COMPLETED
+            message:
+              type: string
+              example: Chuyến đi đã thanh toán thành công, không thể chuyển đổi phương thức.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: provider
+                  message:
+                    type: string
+                    example: Vui lòng chọn nhà cung cấp ví điện tử khi chọn phương thức E_WALLET.

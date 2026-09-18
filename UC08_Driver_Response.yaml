@@ -1,0 +1,192 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Tài xế Phản hồi cuốc xe (UC08)"
+  version: 1.0.0
+  description: API cho phép tài xế chấp nhận hoặc từ chối yêu cầu đặt xe được phân công.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Driver Operations
+    description: Các thao tác vận hành dành cho tài xế
+
+paths:
+  /trips/{trip_id}/respond:
+    post:
+      summary: Tài xế Chấp nhận hoặc Từ chối cuốc xe
+      operationId: respondToTripOffer
+      tags:
+        - Driver Operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: ID của chuyến đi cần phản hồi
+          schema:
+            type: string
+          example: trip_12345
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverResponseRequest'
+      responses:
+        '200':
+          description: Phản hồi cuốc xe thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/DriverResponseResult'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền truy cập (Chỉ dành cho tài khoản DRIVER)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Chỉ tài khoản Tài xế mới có thể thực hiện thao tác này.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi với ID tương ứng.
+        '409':
+          description: Yêu cầu hết hạn hoặc chuyến đi đã được nhận bởi người khác
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OfferExpired:
+                  summary: Hết thời gian chờ phản hồi
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_OFFER_EXPIRED
+                      message: Thời gian phản hồi cuốc xe đã hết hạn.
+                TripTaken:
+                  summary: Chuyến đi đã được tài xế khác nhận
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_ALREADY_TAKEN
+                      message: Chuyến đi này đã được tài xế khác chấp nhận.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DriverResponseRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [ACCEPT, DECLINE]
+          example: ACCEPT
+        decline_reason:
+          type: string
+          description: Lý do từ chối (bắt buộc hoặc tùy chọn khi action = DECLINE)
+          example: "Khoảng cách đến điểm đón quá xa"
+
+    DriverResponseResult:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          example: trip_12345
+        driver_id:
+          type: string
+          example: drv_009
+        status:
+          type: string
+          enum: [ACCEPTED, DECLINED, SEARCHING_DRIVER]
+          example: ACCEPTED
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:30:54Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: TRIP_OFFER_EXPIRED
+            message:
+              type: string
+              example: Thời gian phản hồi cuốc xe đã hết hạn.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: action
+                  message:
+                    type: string
+                    example: Hành động phải là ACCEPT hoặc DECLINE.

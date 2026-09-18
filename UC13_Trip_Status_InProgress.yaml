@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Bắt đầu Chuyến xe (UC13)"
+  version: 1.0.0
+  description: API cho phép tài xế xác nhận khách hàng đã lên xe và chính thức bắt đầu hành trình di chuyển.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Trip Tracking
+    description: Quản lý và cập nhật tiến trình chuyến đi
+
+paths:
+  /trips/{trip_id}/start:
+    post:
+      summary: Khách đã lên xe - Bắt đầu hành trình
+      operationId: startTrip
+      tags:
+        - Trip Tracking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: ID của chuyến đi
+          schema:
+            type: string
+          example: trip_12345
+      responses:
+        '200':
+          description: Chuyến xe đã bắt đầu thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/TripStartResult'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền thực hiện (Tài khoản không phải tài xế phụ trách chuyến đi)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không phải tài xế được phân công cho chuyến đi này.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi với ID tương ứng.
+        '409':
+          description: Trạng thái chuyến đi không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_TRIP_STATUS
+                  message: Chuyến đi phải ở trạng thái DRIVER_ARRIVED mới có thể bắt đầu hành trình.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    TripStartResult:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          example: trip_12345
+        driver_id:
+          type: string
+          example: drv_009
+        status:
+          type: string
+          enum: [IN_PROGRESS]
+          example: IN_PROGRESS
+        started_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:37:37Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: INVALID_TRIP_STATUS
+            message:
+              type: string
+              example: Chuyến đi phải ở trạng thái DRIVER_ARRIVED mới có thể bắt đầu hành trình.

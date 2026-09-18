@@ -1,0 +1,211 @@
+openapi: 3.0.3
+info:
+  title: "CAB System API - Đánh giá Chuyến đi (UC19)"
+  version: 1.0.0
+  description: API cho phép hành khách gửi đánh giá số sao (1-5 sao) và phản hồi ý kiến cho tài xế sau khi chuyến đi hoàn thành.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local
+
+tags:
+  - name: Rating & Review
+    description: Quản lý đánh giá và phản hồi của khách hàng về chuyến đi và tài xế
+
+paths:
+  /ratings:
+    post:
+      summary: Khách hàng gửi rating & feedback
+      operationId: submitTripRating
+      tags:
+        - Rating & Review
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingRequest'
+      responses:
+        '201':
+          description: Gửi đánh giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/RatingResult'
+        '400':
+          description: Dữ liệu đánh giá không hợp lệ (số sao ngoài khoảng 1-5, comment quá dài,...)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Chưa xác thực hoặc Token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: UNAUTHORIZED
+                  message: Token không hợp lệ hoặc đã hết hạn.
+        '403':
+          description: Không có quyền thực hiện (Tài khoản không phải hành khách của chuyến đi)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: FORBIDDEN
+                  message: Bạn không phải hành khách tham gia chuyến đi này.
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: TRIP_NOT_FOUND
+                  message: Không tìm thấy chuyến đi tương ứng.
+        '409':
+          description: Chuyến đi chưa kết thúc hoặc đã được đánh giá trước đó
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AlreadyRated:
+                  summary: Chuyến đi đã được đánh giá
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_ALREADY_RATED
+                      message: Bạn đã thực hiện đánh giá cho chuyến đi này trước đó.
+                TripNotCompleted:
+                  summary: Chuyến đi chưa hoàn thành
+                  value:
+                    success: false
+                    error:
+                      code: TRIP_NOT_COMPLETED
+                      message: Chuyến đi chưa hoàn thành. Không thể gửi đánh giá.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RatingRequest:
+      type: object
+      required:
+        - trip_id
+        - rating_stars
+      properties:
+        trip_id:
+          type: string
+          description: ID của chuyến đi đã hoàn thành
+          example: trip_12345
+        rating_stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Mức độ hài lòng từ 1 đến 5 sao
+          example: 5
+        comment:
+          type: string
+          maxLength: 500
+          description: Nhận xét hoặc góp ý chi tiết của khách hàng
+          example: "Xe đi rất êm và an toàn!"
+        tags:
+          type: array
+          items:
+            type: string
+          description: 'Nhãn đánh giá nhanh chọn sẵn (ví dụ: "Lái xe an toàn", "Xe sạch sẻ")'
+          example: ["Lái xe an toàn", "Xe sạch sẻ"]
+
+    RatingResult:
+      type: object
+      properties:
+        rating_id:
+          type: string
+          example: rate_778899
+        trip_id:
+          type: string
+          example: trip_12345
+        passenger_id:
+          type: string
+          example: pass_001
+        driver_id:
+          type: string
+          example: drv_009
+        rating_stars:
+          type: integer
+          example: 5
+        comment:
+          type: string
+          example: "Xe đi rất êm và an toàn!"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["Lái xe an toàn", "Xe sạch sẻ"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-09-18T13:44:03Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: TRIP_ALREADY_RATED
+            message:
+              type: string
+              example: Bạn đã thực hiện đánh giá cho chuyến đi này trước đó.
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Dữ liệu đầu vào không hợp lệ.
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: rating_stars
+                  message:
+                    type: string
+                    example: Số sao đánh giá (rating_stars) phải nằm trong khoảng từ 1 đến 5.
