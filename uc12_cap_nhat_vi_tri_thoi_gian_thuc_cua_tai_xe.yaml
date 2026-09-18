@@ -1,0 +1,24 @@
+use_case_id: UC12
+use_case_name: Cập nhật vị trí thời gian thực của Tài xế
+module: Trip Tracking Module
+actor_chinh: Tài xế
+actor_phu: []
+mo_ta_ngan: Ứng dụng tài xế gửi tọa độ định vị định kỳ để hệ thống nắm được vị trí hiện tại phục vụ tìm tài xế và tính ETA.
+tien_dieu_kien:
+- Tài xế đã đăng nhập và bật định vị GPS trên thiết bị
+hau_dieu_kien:
+- Vị trí của tài xế được cập nhật trong hệ thống theo thời gian thực
+luong_chinh:
+- stt: 1
+  mo_ta: Ứng dụng tài xế gửi tọa độ GPS định kỳ lên hệ thống.
+- stt: 2
+  mo_ta: Hệ thống ghi nhận và cập nhật vị trí mới nhất của tài xế.
+- stt: 3
+  mo_ta: Hệ thống sử dụng dữ liệu vị trí để phục vụ việc tìm kiếm tài xế (UC09) và tính ETA (UC15).
+luong_ngoai_le:
+- ma: E1
+  ten: Mất tín hiệu GPS/mạng
+  mo_ta: Hệ thống giữ vị trí cuối cùng đã ghi nhận và đánh dấu trạng thái vị trí "không xác định" nếu quá thời gian quy định.
+quy_tac_lien_quan:
+- BR_SEC_01
+ghi_chu: ''

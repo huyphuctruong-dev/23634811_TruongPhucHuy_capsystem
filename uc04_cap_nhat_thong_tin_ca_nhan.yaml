@@ -1,0 +1,25 @@
+use_case_id: UC04
+use_case_name: Cập nhật thông tin cá nhân
+module: User Management Module
+actor_chinh: Khách hàng / Tài xế
+actor_phu: []
+mo_ta_ngan: Người dùng chỉnh sửa và cập nhật thông tin hồ sơ cá nhân của mình.
+tien_dieu_kien:
+- Người dùng đã đăng nhập thành công
+hau_dieu_kien:
+- Thông tin cá nhân của người dùng được cập nhật trong hệ thống
+luong_chinh:
+- stt: 1
+  mo_ta: Người dùng chọn mục "Hồ sơ cá nhân".
+- stt: 2
+  mo_ta: Người dùng chỉnh sửa thông tin (họ tên, ảnh đại diện, phương thức liên hệ...).
+- stt: 3
+  mo_ta: Hệ thống kiểm tra tính hợp lệ của dữ liệu nhập.
+- stt: 4
+  mo_ta: Hệ thống lưu thay đổi và hiển thị xác nhận cập nhật thành công.
+luong_ngoai_le:
+- ma: E1
+  ten: Dữ liệu nhập không hợp lệ
+  mo_ta: Hệ thống báo lỗi cụ thể theo trường dữ liệu và giữ nguyên thông tin cũ cho đến khi người dùng sửa đúng.
+quy_tac_lien_quan: []
+ghi_chu: ''

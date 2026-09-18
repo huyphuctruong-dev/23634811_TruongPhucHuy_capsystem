@@ -1,0 +1,31 @@
+use_case_id: UC14
+use_case_name: Tiếp nhận và thực hiện chuyến đi (Process Ride)
+module: Trip Tracking Module
+actor_chinh: Tài xế
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Tài xế nhận thông báo chuyến đi, chấp nhận chuyến và cập nhật tiến trình cho đến khi hoàn thành.
+tien_dieu_kien:
+- Tài xế đang ở trạng thái "Sẵn sàng nhận chuyến" và có vị trí GPS hợp lệ
+hau_dieu_kien:
+- Chuyến đi hoàn tất, hệ thống chuyển sang bước tính cước và thanh toán (UC16)
+luong_chinh:
+- stt: 1
+  mo_ta: Tài xế nhận được thông báo đề xuất chuyến đi mới kèm điểm đón/đến.
+- stt: 2
+  mo_ta: Tài xế chọn "Chấp nhận" chuyến đi trong thời gian quy định.
+- stt: 3
+  mo_ta: Hệ thống cập nhật trạng thái chuyến sang "Đã có tài xế" và thông báo cho khách hàng.
+- stt: 4
+  mo_ta: Tài xế di chuyển đến điểm đón và ấn cập nhật "Đã đến điểm đón".
+- stt: 5
+  mo_ta: Khi khách lên xe, tài xế ấn cập nhật "Đã đón khách / Đang di chuyển".
+- stt: 6
+  mo_ta: Đến nơi, tài xế ấn "Hoàn thành chuyến đi", hệ thống ghi nhận mốc thời gian kết thúc.
+luong_ngoai_le:
+- ma: E1
+  ten: Tài xế từ chối / hết thời gian phản hồi
+  mo_ta: Nếu tài xế ấn "Từ chối" hoặc không phản hồi sau thời gian timeout, hệ thống tự động chuyển yêu cầu sang tài xế tiếp theo mà khách hàng không cần tạo lại lệnh đặt.
+quy_tac_lien_quan:
+- BR_MATCH_03
+ghi_chu: ''

@@ -1,0 +1,28 @@
+use_case_id: UC10
+use_case_name: Tài xế chấp nhận / từ chối chuyến
+module: Booking & Dispatching Module
+actor_chinh: Tài xế
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Tài xế xem xét đề xuất chuyến đi từ hệ thống và quyết định chấp nhận hoặc từ chối trong thời gian quy định.
+tien_dieu_kien:
+- Tài xế nhận được đề xuất chuyến đi từ hệ thống (UC09)
+hau_dieu_kien:
+- Chuyến đi được ghép cho tài xế (nếu chấp nhận) hoặc được chuyển tiếp cho tài xế khác (nếu từ chối/timeout)
+luong_chinh:
+- stt: 1
+  mo_ta: Tài xế nhận thông báo đề xuất chuyến đi mới kèm điểm đón/đến.
+- stt: 2
+  mo_ta: Tài xế xem thông tin chuyến và chọn "Chấp nhận" trong thời gian quy định.
+- stt: 3
+  mo_ta: Hệ thống cập nhật trạng thái chuyến sang "Đã có tài xế" và thông báo cho khách hàng.
+luong_ngoai_le:
+- ma: E1
+  ten: Tài xế từ chối chuyến
+  mo_ta: Hệ thống ghi nhận từ chối và chuyển đề xuất cho tài xế tiếp theo (quay lại UC09).
+- ma: E2
+  ten: Hết thời gian phản hồi (timeout)
+  mo_ta: Hệ thống tự động xem như tài xế từ chối và chuyển đề xuất sang tài xế tiếp theo.
+quy_tac_lien_quan:
+- BR_MATCH_03
+ghi_chu: ''

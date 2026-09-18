@@ -1,0 +1,29 @@
+use_case_id: UC11
+use_case_name: Hủy yêu cầu đặt xe
+module: Booking & Dispatching Module
+actor_chinh: Khách hàng
+actor_phu:
+- Tài xế
+mo_ta_ngan: Khách hàng hoặc tài xế hủy chuyến đi trước khi chuyến hoàn thành.
+tien_dieu_kien:
+- Chuyến đi đang ở trạng thái "Đang tìm tài xế" hoặc "Đã có tài xế" (chưa hoàn thành)
+hau_dieu_kien:
+- Chuyến đi chuyển sang trạng thái "Đã hủy"
+luong_chinh:
+- stt: 1
+  mo_ta: Khách hàng (hoặc tài xế) chọn chức năng "Hủy chuyến".
+- stt: 2
+  mo_ta: Hệ thống yêu cầu xác nhận lý do hủy.
+- stt: 3
+  mo_ta: Hệ thống cập nhật trạng thái chuyến đi thành "Đã hủy".
+- stt: 4
+  mo_ta: Hệ thống gửi thông báo hủy chuyến cho bên còn lại.
+luong_ngoai_le:
+- ma: E1
+  ten: Chuyến đã ở trạng thái đang di chuyển / hoàn thành
+  mo_ta: Hệ thống từ chối yêu cầu hủy vì chuyến đi không còn ở trạng thái được phép hủy.
+- ma: E2
+  ten: Hủy chuyến sau khi đã có tài xế
+  mo_ta: Hệ thống áp dụng chính sách hủy chuyến tương ứng (có thể phát sinh phí hủy tùy chính sách).
+quy_tac_lien_quan: []
+ghi_chu: Chính sách hủy chuyến chi tiết là điểm cần Business Analyst tiếp tục làm rõ với các bên liên quan.

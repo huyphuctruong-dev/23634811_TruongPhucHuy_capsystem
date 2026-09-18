@@ -1,0 +1,31 @@
+use_case_id: UC02
+use_case_name: Đăng ký tài khoản Tài xế
+module: User Management Module
+actor_chinh: Tài xế
+actor_phu:
+- Nhân viên Vận hành
+mo_ta_ngan: Tài xế tự đăng ký hồ sơ để tham gia cung cấp dịch vụ trên hệ thống CAB.
+tien_dieu_kien:
+- Tài xế chưa có tài khoản trong hệ thống
+hau_dieu_kien:
+- Hồ sơ tài xế được tạo và chuyển sang trạng thái "Chờ duyệt"
+luong_chinh:
+- stt: 1
+  mo_ta: Tài xế chọn chức năng "Đăng ký tài xế" trên ứng dụng.
+- stt: 2
+  mo_ta: Tài xế nhập thông tin cá nhân, thông tin phương tiện và tải lên giấy tờ liên quan (GPLX, đăng ký xe...).
+- stt: 3
+  mo_ta: Hệ thống kiểm tra tính hợp lệ và đầy đủ của dữ liệu nhập.
+- stt: 4
+  mo_ta: Hệ thống lưu hồ sơ ở trạng thái "Chờ duyệt".
+- stt: 5
+  mo_ta: Hệ thống gửi thông báo cho Nhân viên Vận hành để tiến hành phê duyệt hồ sơ (UC05).
+luong_ngoai_le:
+- ma: E1
+  ten: Thiếu giấy tờ bắt buộc
+  mo_ta: Hệ thống thông báo giấy tờ còn thiếu và yêu cầu tài xế bổ sung trước khi gửi hồ sơ.
+- ma: E2
+  ten: Thông tin phương tiện không hợp lệ
+  mo_ta: Hệ thống từ chối lưu và yêu cầu tài xế nhập lại thông tin phương tiện đúng định dạng.
+quy_tac_lien_quan: []
+ghi_chu: Use case này include quan hệ với UC05 (Nhân viên vận hành tạo & phê duyệt tài khoản Tài xế).

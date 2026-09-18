@@ -1,0 +1,25 @@
+use_case_id: UC21
+use_case_name: Gửi thông báo cho Tài xế
+module: Notification Module
+actor_chinh: Hệ thống
+actor_phu:
+- Tài xế
+mo_ta_ngan: Hệ thống gửi thông báo kịp thời cho tài xế về chuyến mới hoặc các thay đổi liên quan đến chuyến đang thực hiện.
+tien_dieu_kien:
+- Có sự kiện liên quan đến tài xế cần thông báo (đề xuất chuyến mới, khách hủy chuyến, thay đổi chuyến...)
+hau_dieu_kien:
+- Tài xế nhận được thông báo tương ứng với sự kiện
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống phát hiện sự kiện liên quan đến tài xế (đề xuất chuyến mới, khách hủy chuyến...).
+- stt: 2
+  mo_ta: Hệ thống soạn nội dung thông báo.
+- stt: 3
+  mo_ta: Hệ thống gửi thông báo đến ứng dụng tài xế theo thời gian thực.
+luong_ngoai_le:
+- ma: E1
+  ten: Gửi thông báo thất bại
+  mo_ta: Hệ thống thử gửi lại thông báo theo cơ chế dự phòng đã cấu hình.
+quy_tac_lien_quan:
+- BR_NOTI_01
+ghi_chu: ''

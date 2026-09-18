@@ -1,0 +1,25 @@
+use_case_id: UC13
+use_case_name: Theo dõi trạng thái chuyến đi
+module: Trip Tracking Module
+actor_chinh: Khách hàng
+actor_phu: []
+mo_ta_ngan: Khách hàng theo dõi tiến trình chuyến đi của mình theo thời gian thực trên ứng dụng.
+tien_dieu_kien:
+- Yêu cầu đặt xe đã được tạo
+hau_dieu_kien:
+- Khách hàng nắm được trạng thái hiện tại của chuyến đi
+luong_chinh:
+- stt: 1
+  mo_ta: Khách hàng mở màn hình theo dõi chuyến đi.
+- stt: 2
+  mo_ta: Hệ thống hiển thị trạng thái hiện tại (đang tìm tài xế / đã có tài xế / đang di chuyển / hoàn thành).
+- stt: 3
+  mo_ta: Hệ thống hiển thị vị trí tài xế trên bản đồ và thời gian dự kiến đến (ETA - UC15).
+- stt: 4
+  mo_ta: Hệ thống tự động cập nhật giao diện khi trạng thái chuyến đi thay đổi.
+luong_ngoai_le:
+- ma: E1
+  ten: Mất kết nối trong khi theo dõi
+  mo_ta: Hệ thống hiển thị trạng thái cuối cùng đã đồng bộ và tự động làm mới dữ liệu khi kết nối được khôi phục.
+quy_tac_lien_quan: []
+ghi_chu: ''

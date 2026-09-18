@@ -1,0 +1,26 @@
+use_case_id: UC22
+use_case_name: Đánh giá Tài xế sau chuyến đi
+module: Rating Module
+actor_chinh: Khách hàng
+actor_phu:
+- Tài xế
+mo_ta_ngan: Khách hàng chấm điểm và nhận xét chất lượng phục vụ của tài xế ngay sau khi chuyến đi hoàn thành.
+tien_dieu_kien:
+- Chuyến đi đã hoàn thành và thanh toán xong
+hau_dieu_kien:
+- Điểm đánh giá và nhận xét được ghi nhận, cập nhật vào hồ sơ tài xế
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống hiển thị giao diện đánh giá ngay sau khi chuyến đi hoàn thành.
+- stt: 2
+  mo_ta: Khách hàng chấm điểm sao (thang điểm từ 1 đến 5) và nhập nhận xét (tùy chọn).
+- stt: 3
+  mo_ta: Khách hàng gửi đánh giá.
+- stt: 4
+  mo_ta: Hệ thống ghi nhận đánh giá và cập nhật điểm đánh giá trung bình vào hồ sơ tài xế.
+luong_ngoai_le:
+- ma: E1
+  ten: Khách hàng bỏ qua bước đánh giá
+  mo_ta: Hệ thống cho phép khách hàng thực hiện đánh giá sau đó thông qua màn hình lịch sử chuyến đi.
+quy_tac_lien_quan: []
+ghi_chu: Tương ứng yêu cầu chức năng FR-03 và FR-04 trong tài liệu yêu cầu nghiệp vụ.

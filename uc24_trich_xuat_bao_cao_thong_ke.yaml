@@ -1,0 +1,25 @@
+use_case_id: UC24
+use_case_name: Trích xuất báo cáo thống kê
+module: Admin & Reporting Module
+actor_chinh: Nhân viên Vận hành / Ban lãnh đạo
+actor_phu: []
+mo_ta_ngan: Nhân viên vận hành hoặc ban lãnh đạo trích xuất các báo cáo thống kê về hoạt động của hệ thống CAB.
+tien_dieu_kien:
+- Người dùng đã đăng nhập trang quản trị với quyền phù hợp
+hau_dieu_kien:
+- Báo cáo thống kê được tạo và có thể xuất theo yêu cầu
+luong_chinh:
+- stt: 1
+  mo_ta: Người dùng chọn chức năng "Báo cáo thống kê".
+- stt: 2
+  mo_ta: Người dùng chọn khoảng thời gian và loại báo cáo (số chuyến, doanh thu, tỷ lệ hoàn thành/hủy, hiệu quả hoạt động của tài xế).
+- stt: 3
+  mo_ta: Hệ thống tổng hợp dữ liệu và hiển thị báo cáo.
+- stt: 4
+  mo_ta: Người dùng có thể xuất báo cáo (Excel/PDF) nếu cần.
+luong_ngoai_le:
+- ma: E1
+  ten: Không có dữ liệu trong khoảng thời gian đã chọn
+  mo_ta: Hệ thống thông báo không có dữ liệu phù hợp và gợi ý người dùng chọn lại khoảng thời gian.
+quy_tac_lien_quan: []
+ghi_chu: ''

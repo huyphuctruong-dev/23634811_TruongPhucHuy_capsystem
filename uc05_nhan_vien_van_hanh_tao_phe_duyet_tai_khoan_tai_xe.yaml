@@ -1,0 +1,30 @@
+use_case_id: UC05
+use_case_name: Nhân viên Vận hành tạo & phê duyệt tài khoản Tài xế
+module: User Management Module
+actor_chinh: Nhân viên Vận hành
+actor_phu:
+- Tài xế
+mo_ta_ngan: Nhân viên vận hành xét duyệt hồ sơ tài xế đăng ký hoặc tạo trực tiếp tài khoản tài xế mới.
+tien_dieu_kien:
+- Nhân viên vận hành đã đăng nhập trang quản trị với quyền phù hợp
+- Có hồ sơ tài xế đang ở trạng thái "Chờ duyệt" (từ UC02) hoặc yêu cầu tạo mới trực tiếp
+hau_dieu_kien:
+- Tài khoản tài xế được kích hoạt hoặc bị từ chối kèm lý do
+luong_chinh:
+- stt: 1
+  mo_ta: Nhân viên vận hành mở danh sách hồ sơ tài xế chờ duyệt (hoặc tạo tài khoản mới trực tiếp cho tài xế).
+- stt: 2
+  mo_ta: Nhân viên kiểm tra thông tin cá nhân, giấy tờ và thông tin phương tiện.
+- stt: 3
+  mo_ta: Nhân viên chọn "Phê duyệt" hoặc "Từ chối" kèm lý do (nếu từ chối).
+- stt: 4
+  mo_ta: Hệ thống cập nhật trạng thái tài khoản tài xế tương ứng.
+- stt: 5
+  mo_ta: Hệ thống gửi thông báo kết quả phê duyệt cho tài xế.
+luong_ngoai_le:
+- ma: E1
+  ten: Hồ sơ thiếu/không hợp lệ
+  mo_ta: Hệ thống chuyển hồ sơ về trạng thái yêu cầu bổ sung; tài xế cần cập nhật lại trước khi nhân viên duyệt lại.
+quy_tac_lien_quan:
+- BR_SEC_01
+ghi_chu: ''

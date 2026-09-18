@@ -1,0 +1,33 @@
+use_case_id: UC01
+use_case_name: Đăng ký tài khoản Khách hàng
+module: User Management Module
+actor_chinh: Khách hàng
+actor_phu: []
+mo_ta_ngan: Khách hàng tạo tài khoản mới trên hệ thống CAB để có thể đặt xe.
+tien_dieu_kien:
+- Khách hàng chưa có tài khoản trong hệ thống
+hau_dieu_kien:
+- Tài khoản khách hàng được tạo và ở trạng thái hoạt động
+luong_chinh:
+- stt: 1
+  mo_ta: Khách hàng chọn chức năng "Đăng ký tài khoản" trên ứng dụng.
+- stt: 2
+  mo_ta: Khách hàng nhập thông tin cá nhân (họ tên, số điện thoại, email, mật khẩu).
+- stt: 3
+  mo_ta: Hệ thống kiểm tra tính hợp lệ và tính duy nhất của thông tin nhập.
+- stt: 4
+  mo_ta: Hệ thống gửi mã xác thực (OTP/email) để xác minh danh tính.
+- stt: 5
+  mo_ta: Khách hàng nhập mã xác thực nhận được.
+- stt: 6
+  mo_ta: Hệ thống xác nhận mã hợp lệ và kích hoạt tài khoản khách hàng.
+luong_ngoai_le:
+- ma: E1
+  ten: Thông tin đã tồn tại
+  mo_ta: Số điện thoại hoặc email đã được đăng ký, hệ thống báo lỗi trùng thông tin và yêu cầu khách hàng nhập lại hoặc đăng nhập.
+- ma: E2
+  ten: Mã xác thực sai / hết hạn
+  mo_ta: Hệ thống thông báo mã không hợp lệ và cho phép khách hàng yêu cầu gửi lại mã xác thực.
+quy_tac_lien_quan:
+- BR_SEC_01
+ghi_chu: ''

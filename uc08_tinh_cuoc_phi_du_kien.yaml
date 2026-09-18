@@ -1,0 +1,27 @@
+use_case_id: UC08
+use_case_name: Tính cước phí dự kiến
+module: Booking & Dispatching Module
+actor_chinh: Hệ thống
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Hệ thống tính toán và hiển thị cước phí dự kiến ngay khi khách hàng nhập thông tin hành trình.
+tien_dieu_kien:
+- Khách hàng đã nhập điểm đón, điểm đến và chọn loại dịch vụ
+hau_dieu_kien:
+- Cước phí dự kiến và quãng đường được hiển thị cho khách hàng
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống nhận thông tin điểm đón, điểm đến và loại dịch vụ từ yêu cầu đặt xe.
+- stt: 2
+  mo_ta: Hệ thống tính khoảng cách và thời gian di chuyển dự kiến.
+- stt: 3
+  mo_ta: 'Hệ thống áp dụng công thức tính cước: cước mở cửa + (quãng đường x đơn giá theo loại xe) + phụ phí giờ cao điểm (nếu có).'
+- stt: 4
+  mo_ta: Hệ thống hiển thị cước phí dự kiến cho khách hàng trước khi xác nhận đặt xe.
+luong_ngoai_le:
+- ma: E1
+  ten: Không tính được khoảng cách
+  mo_ta: Do lỗi bản đồ/định vị, hệ thống báo lỗi và yêu cầu khách hàng thử lại hoặc chọn lại điểm đón/đến.
+quy_tac_lien_quan:
+- BR_PAY_01
+ghi_chu: Use case này được UC07 include.

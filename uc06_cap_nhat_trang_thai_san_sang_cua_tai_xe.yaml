@@ -1,0 +1,24 @@
+use_case_id: UC06
+use_case_name: Cập nhật trạng thái sẵn sàng của Tài xế
+module: User Management Module
+actor_chinh: Tài xế
+actor_phu: []
+mo_ta_ngan: Tài xế chuyển đổi trạng thái hoạt động để được hệ thống đưa vào danh sách phân công chuyến đi.
+tien_dieu_kien:
+- Tài xế đã đăng nhập và tài khoản đã được phê duyệt
+hau_dieu_kien:
+- Trạng thái hoạt động của tài xế được cập nhật (Sẵn sàng / Không sẵn sàng)
+luong_chinh:
+- stt: 1
+  mo_ta: Tài xế chọn chuyển trạng thái sang "Sẵn sàng nhận chuyến".
+- stt: 2
+  mo_ta: Hệ thống kiểm tra điều kiện cần thiết (vị trí GPS hợp lệ, hồ sơ đã được duyệt).
+- stt: 3
+  mo_ta: Hệ thống cập nhật trạng thái tài xế và đưa vào danh sách tài xế sẵn sàng để phục vụ phân công (UC09).
+luong_ngoai_le:
+- ma: E1
+  ten: Không lấy được vị trí GPS
+  mo_ta: Hệ thống thông báo lỗi định vị và giữ tài xế ở trạng thái "Không sẵn sàng" cho đến khi có tín hiệu GPS hợp lệ.
+quy_tac_lien_quan:
+- BR_MATCH_01
+ghi_chu: ''

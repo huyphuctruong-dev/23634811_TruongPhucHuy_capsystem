@@ -1,0 +1,27 @@
+use_case_id: UC17
+use_case_name: Thanh toán bằng tiền mặt
+module: Billing & Payment Module
+actor_chinh: Khách hàng
+actor_phu:
+- Tài xế
+mo_ta_ngan: Khách hàng thanh toán cước phí trực tiếp bằng tiền mặt cho tài xế sau khi hoàn thành chuyến đi.
+tien_dieu_kien:
+- Cước phí chính thức đã được tính (UC16)
+- Khách hàng đã chọn phương thức thanh toán tiền mặt
+hau_dieu_kien:
+- Chuyến đi được ghi nhận trạng thái thanh toán "Hoàn tất"
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống hiển thị số tiền cần thanh toán bằng tiền mặt.
+- stt: 2
+  mo_ta: Khách hàng trả tiền mặt trực tiếp cho tài xế.
+- stt: 3
+  mo_ta: Tài xế xác nhận đã nhận đủ tiền trên ứng dụng.
+- stt: 4
+  mo_ta: Hệ thống ghi nhận trạng thái thanh toán "Hoàn tất" cho chuyến đi.
+luong_ngoai_le:
+- ma: E1
+  ten: Khách hàng chưa thanh toán đủ
+  mo_ta: Tài xế báo cáo sự cố, hệ thống ghi nhận và chuyển cho nhân viên vận hành xử lý (UC23).
+quy_tac_lien_quan: []
+ghi_chu: ''

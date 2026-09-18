@@ -1,0 +1,28 @@
+use_case_id: UC23
+use_case_name: Theo dõi chuyến đang diễn ra & Xử lý sự cố
+module: Admin & Reporting Module
+actor_chinh: Nhân viên Vận hành
+actor_phu:
+- Khách hàng
+- Tài xế
+mo_ta_ngan: Nhân viên vận hành giám sát các chuyến đi đang diễn ra và can thiệp xử lý khi phát sinh sự cố.
+tien_dieu_kien:
+- Nhân viên vận hành đã đăng nhập trang quản trị với quyền phù hợp
+hau_dieu_kien:
+- Sự cố chuyến đi (nếu có) được ghi nhận và xử lý; thao tác được lưu vết (audit log)
+luong_chinh:
+- stt: 1
+  mo_ta: Nhân viên vận hành mở danh sách các chuyến đang diễn ra.
+- stt: 2
+  mo_ta: Nhân viên kiểm tra trạng thái tài xế, vị trí và tiến trình chuyến đi.
+- stt: 3
+  mo_ta: Khi phát hiện chuyến gặp sự cố (kẹt trạng thái, khiếu nại thanh toán...), nhân viên can thiệp xử lý (hủy chuyến, liên hệ tài xế/khách hàng, điều chỉnh trạng thái).
+- stt: 4
+  mo_ta: Hệ thống ghi log (audit log) các thao tác xử lý sự cố.
+luong_ngoai_le:
+- ma: E1
+  ten: Nhân viên không có quyền thực hiện thao tác nhạy cảm
+  mo_ta: Hệ thống từ chối thao tác và yêu cầu chuyển xử lý cho cấp quản lý có quyền cao hơn.
+quy_tac_lien_quan:
+- BR_SEC_01
+ghi_chu: ''

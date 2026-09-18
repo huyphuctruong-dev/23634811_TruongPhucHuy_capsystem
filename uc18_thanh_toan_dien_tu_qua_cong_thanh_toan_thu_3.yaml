@@ -1,0 +1,30 @@
+use_case_id: UC18
+use_case_name: Thanh toán điện tử qua cổng thanh toán thứ 3
+module: Billing & Payment Module
+actor_chinh: Khách hàng
+actor_phu:
+- Nhà cung cấp thanh toán bên thứ 3
+mo_ta_ngan: Hệ thống tích hợp với cổng thanh toán bên ngoài để xử lý giao dịch điện tử mà không lưu trữ thông tin nhạy cảm của thẻ.
+tien_dieu_kien:
+- Cước phí chính thức đã được tính (UC16)
+- Khách hàng đã chọn phương thức thanh toán điện tử
+hau_dieu_kien:
+- Giao dịch thanh toán điện tử được xử lý và kết quả được ghi nhận vào chuyến đi
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống gửi yêu cầu thanh toán (số tiền, thông tin chuyến) đến cổng thanh toán bên thứ 3 thông qua cơ chế tokenization.
+- stt: 2
+  mo_ta: Cổng thanh toán xử lý giao dịch với phương thức thanh toán đã lưu của khách hàng.
+- stt: 3
+  mo_ta: Cổng thanh toán trả kết quả giao dịch về cho hệ thống CAB.
+- stt: 4
+  mo_ta: Hệ thống ghi nhận kết quả và cập nhật trạng thái thanh toán của chuyến đi.
+- stt: 5
+  mo_ta: Hệ thống gửi thông báo kết quả thanh toán cho khách hàng (UC20).
+luong_ngoai_le:
+- ma: E1
+  ten: Giao dịch thất bại
+  mo_ta: Hệ thống chuyển sang quy trình xử lý giao dịch thất bại (UC19).
+quy_tac_lien_quan:
+- BR_PAY_02
+ghi_chu: Hệ thống CAB không lưu trữ thông tin nhạy cảm của thẻ/tài khoản thanh toán.

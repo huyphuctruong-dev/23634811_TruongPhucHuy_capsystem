@@ -1,0 +1,27 @@
+use_case_id: UC20
+use_case_name: Gửi thông báo cho Khách hàng
+module: Notification Module
+actor_chinh: Hệ thống
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Hệ thống tự động gửi thông báo cho khách hàng tại các mốc quan trọng trong vòng đời chuyến đi.
+tien_dieu_kien:
+- 'Có một sự kiện cần thông báo: yêu cầu được tiếp nhận, có tài xế nhận chuyến, tài xế đến điểm đón, hoàn thành chuyến, kết quả thanh toán'
+hau_dieu_kien:
+- Khách hàng nhận được thông báo tương ứng với sự kiện
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống phát hiện sự kiện cần thông báo trong vòng đời chuyến đi.
+- stt: 2
+  mo_ta: Hệ thống soạn nội dung thông báo theo mốc sự kiện tương ứng.
+- stt: 3
+  mo_ta: Hệ thống gửi thông báo qua kênh phù hợp (push/app/SMS).
+- stt: 4
+  mo_ta: Hệ thống ghi nhận trạng thái gửi thông báo.
+luong_ngoai_le:
+- ma: E1
+  ten: Gửi thông báo thất bại
+  mo_ta: Hệ thống thử gửi lại hoặc chuyển sang kênh dự phòng; lỗi thông báo không làm ảnh hưởng đến luồng chính của chuyến đi.
+quy_tac_lien_quan:
+- BR_NOTI_01
+ghi_chu: Kiến trúc thông báo được thiết kế dạng mở rộng để dễ dàng tích hợp thêm kênh thông báo mới trong tương lai.

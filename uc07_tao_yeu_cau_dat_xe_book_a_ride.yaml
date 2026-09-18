@@ -1,0 +1,32 @@
+use_case_id: UC07
+use_case_name: Tạo yêu cầu đặt xe (Book a Ride)
+module: Booking & Dispatching Module
+actor_chinh: Khách hàng
+actor_phu: []
+mo_ta_ngan: Khách hàng nhập thông tin hành trình, chọn loại dịch vụ và gửi yêu cầu để hệ thống khởi tạo chuyến đi.
+tien_dieu_kien:
+- Khách hàng đã đăng nhập tài khoản thành công
+hau_dieu_kien:
+- Yêu cầu đặt xe được tạo trên hệ thống, bắt đầu kích hoạt quy trình tìm kiếm tài xế
+luong_chinh:
+- stt: 1
+  mo_ta: Khách hàng chọn chức năng "Đặt xe" trên ứng dụng.
+- stt: 2
+  mo_ta: Khách hàng nhập điểm đón, điểm đến và chọn loại xe/dịch vụ.
+- stt: 3
+  mo_ta: Hệ thống tính toán, hiển thị quãng đường và cước phí dự kiến (UC08).
+- stt: 4
+  mo_ta: Khách hàng chọn phương thức thanh toán (Tiền mặt / Điện tử) và xác nhận gửi yêu cầu.
+- stt: 5
+  mo_ta: Hệ thống ghi nhận chuyến đi, chuyển trạng thái sang "Đang tìm tài xế" và gọi thuật toán phân công (UC09).
+- stt: 6
+  mo_ta: Khách hàng nhận được thông báo hệ thống đang xử lý tìm tài xế.
+luong_ngoai_le:
+- ma: E1
+  ten: Nhập thiếu / sai vị trí
+  mo_ta: Hệ thống cảnh báo vị trí không hợp lệ và yêu cầu khách hàng chọn lại từ bản đồ/gợi ý.
+- ma: E2
+  ten: Không tìm thấy tài xế
+  mo_ta: Nếu qua hết danh sách tài xế ưu tiên mà không ai nhận, hệ thống thông báo "Không tìm thấy tài xế" và hỏi khách hàng có muốn đặt lại không.
+quy_tac_lien_quan: []
+ghi_chu: Use case include UC08 (Tính cước phí dự kiến) và UC09 (Tìm và phân công tài xế).

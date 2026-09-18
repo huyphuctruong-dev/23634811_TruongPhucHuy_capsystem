@@ -1,0 +1,29 @@
+use_case_id: UC03
+use_case_name: Đăng nhập hệ thống
+module: User Management Module
+actor_chinh: Khách hàng / Tài xế / Nhân viên Vận hành
+actor_phu: []
+mo_ta_ngan: Người dùng xác thực tài khoản để truy cập vào hệ thống theo đúng vai trò của mình.
+tien_dieu_kien:
+- Người dùng đã có tài khoản hợp lệ trong hệ thống
+hau_dieu_kien:
+- Người dùng được xác thực thành công và truy cập vào giao diện tương ứng với vai trò
+luong_chinh:
+- stt: 1
+  mo_ta: Người dùng nhập tài khoản/mật khẩu (hoặc số điện thoại và mã OTP).
+- stt: 2
+  mo_ta: Hệ thống xác thực thông tin đăng nhập.
+- stt: 3
+  mo_ta: Hệ thống kiểm tra vai trò (Khách hàng/Tài xế/Nhân viên vận hành) và trạng thái tài khoản.
+- stt: 4
+  mo_ta: Hệ thống cấp phiên đăng nhập (token) và chuyển người dùng vào giao diện tương ứng.
+luong_ngoai_le:
+- ma: E1
+  ten: Sai thông tin đăng nhập
+  mo_ta: Hệ thống báo lỗi và giới hạn số lần thử đăng nhập liên tiếp không hợp lệ.
+- ma: E2
+  ten: Tài khoản bị khóa hoặc chưa kích hoạt
+  mo_ta: Hệ thống từ chối đăng nhập và thông báo rõ lý do (khóa/chưa xác thực/chưa được duyệt).
+quy_tac_lien_quan:
+- BR_SEC_01
+ghi_chu: ''

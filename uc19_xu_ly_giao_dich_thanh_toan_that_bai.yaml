@@ -1,0 +1,27 @@
+use_case_id: UC19
+use_case_name: Xử lý giao dịch thanh toán thất bại
+module: Billing & Payment Module
+actor_chinh: Hệ thống
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Hệ thống thông báo lỗi và hỗ trợ khách hàng xử lý lại khi giao dịch thanh toán điện tử không thành công.
+tien_dieu_kien:
+- Giao dịch thanh toán điện tử (UC18) trả về kết quả thất bại
+hau_dieu_kien:
+- Khách hàng được thông báo và có phương án xử lý thanh toán tiếp theo
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống nhận kết quả giao dịch thất bại từ cổng thanh toán.
+- stt: 2
+  mo_ta: Hệ thống gửi thông báo lỗi thanh toán ngay lập tức cho khách hàng.
+- stt: 3
+  mo_ta: 'Hệ thống cung cấp tùy chọn: thử thanh toán lại hoặc chuyển sang thanh toán tiền mặt.'
+- stt: 4
+  mo_ta: Khách hàng chọn phương án xử lý và hệ thống thực hiện lại quy trình thanh toán tương ứng.
+luong_ngoai_le:
+- ma: E1
+  ten: Thử lại vẫn thất bại nhiều lần
+  mo_ta: Hệ thống yêu cầu khách hàng chuyển sang thanh toán tiền mặt hoặc liên hệ bộ phận hỗ trợ.
+quy_tac_lien_quan:
+- BR_PAY_03
+ghi_chu: ''

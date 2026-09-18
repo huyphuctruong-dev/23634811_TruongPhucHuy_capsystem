@@ -1,0 +1,27 @@
+use_case_id: UC16
+use_case_name: Tính cước chính thức sau chuyến đi
+module: Billing & Payment Module
+actor_chinh: Hệ thống
+actor_phu:
+- Khách hàng
+mo_ta_ngan: Hệ thống tự động tính cước phí chính thức dựa trên dữ liệu thực tế ngay sau khi chuyến đi hoàn thành.
+tien_dieu_kien:
+- Chuyến đi đã chuyển sang trạng thái "Hoàn thành" (UC14)
+hau_dieu_kien:
+- Cước phí chính thức được ghi nhận và chuyển sang bước thanh toán (UC17/UC18)
+luong_chinh:
+- stt: 1
+  mo_ta: Hệ thống ghi nhận thời điểm hoàn thành chuyến và quãng đường/thời gian di chuyển thực tế.
+- stt: 2
+  mo_ta: 'Hệ thống áp dụng công thức tính cước chính thức: cước mở cửa + (quãng đường thực tế x đơn giá theo loại xe) + phụ phí giờ cao điểm (nếu có) (BR_PAY_01).'
+- stt: 3
+  mo_ta: Hệ thống hiển thị chi tiết cước phí cho khách hàng.
+- stt: 4
+  mo_ta: Hệ thống chuyển chuyến đi sang bước thanh toán tương ứng.
+luong_ngoai_le:
+- ma: E1
+  ten: Dữ liệu quãng đường/thời gian bất thường
+  mo_ta: Hệ thống đánh dấu chuyến đi cần nhân viên vận hành kiểm tra lại trước khi chốt cước (UC23).
+quy_tac_lien_quan:
+- BR_PAY_01
+ghi_chu: ''

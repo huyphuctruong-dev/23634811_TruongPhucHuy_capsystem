@@ -1,0 +1,35 @@
+use_case_id: UC09
+use_case_name: Tìm và phân công tài xế (Driver Matching)
+module: Booking & Dispatching Module
+actor_chinh: Hệ thống
+actor_phu:
+- Tài xế
+- Khách hàng
+mo_ta_ngan: Hệ thống tự động xác định và đề xuất chuyến đi cho tài xế phù hợp nhất, xử lý trường hợp từ chối/timeout.
+tien_dieu_kien:
+- Yêu cầu đặt xe đã được tạo và đang ở trạng thái "Đang tìm tài xế"
+hau_dieu_kien:
+- Chuyến đi được ghép với một tài xế, hoặc khách hàng nhận được thông báo không tìm được tài xế
+luong_chinh:
+- stt: 1
+  mo_ta: 'Hệ thống lọc danh sách tài xế thỏa điều kiện: đang "Sẵn sàng", loại phương tiện phù hợp và nằm trong bán kính cho phép quanh điểm đón (BR_MATCH_01).'
+- stt: 2
+  mo_ta: Hệ thống tính điểm ưu tiên cho từng tài xế dựa trên rating và khoảng cách (BR_MATCH_02).
+- stt: 3
+  mo_ta: Hệ thống gửi đề xuất chuyến đi cho tài xế có điểm ưu tiên cao nhất.
+- stt: 4
+  mo_ta: Hệ thống chờ phản hồi của tài xế trong thời gian tối đa N giây (BR_MATCH_03).
+- stt: 5
+  mo_ta: Nếu tài xế chấp nhận, hệ thống ghép chuyến và chuyển sang xử lý ở UC10/UC14.
+luong_ngoai_le:
+- ma: E1
+  ten: Tài xế từ chối hoặc hết thời gian phản hồi
+  mo_ta: Hệ thống tự động chuyển đề xuất sang tài xế có điểm ưu tiên kế tiếp mà không yêu cầu khách hàng tạo lại yêu cầu.
+- ma: E2
+  ten: Không còn tài xế phù hợp
+  mo_ta: Sau khi quét hết danh sách tài xế ưu tiên, hệ thống gửi thông báo "Không tìm thấy tài xế" cho khách hàng.
+quy_tac_lien_quan:
+- BR_MATCH_01
+- BR_MATCH_02
+- BR_MATCH_03
+ghi_chu: ''
